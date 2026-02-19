@@ -18,9 +18,6 @@ library(mosaicData)
 data(Whickham)
 
 ?Whickham
-library(performance)
-performance::compare_performance() # might not be behaving as intended.
-
 ```
 
 ### Exercise 1
@@ -76,7 +73,12 @@ Create a visualization depicting the relationship between smoking status and hea
 Whickham %>%
   count(smoker, outcome)
 
+# visual
+ggplot(Whickham, aes(smoker,outcome)) +
+  geom_count() +
+  theme_dark()
 
+# calculate probabilities
 
 
 ```
@@ -85,13 +87,16 @@ Whickham %>%
 ### Exercise 6
 ```{r new-var}
 
-age_cat
+# new age variable (categories)
+age_cat <- Whickham %>%
+  mutate(age_cat = case_when(
+    age <= 44 ~ "18-44",
+    age > 44 & age <= 64 ~ "45-64",
+    age > 64 ~ "65+"
+  ))
 
-age <= 44 ~ "18-44"
-age > 44 & age <= 64 ~ "45-64"
-age > 64 ~ "65+"
-
-
+# check it worked 
+head(age_cat)
 
 ```
 
@@ -101,8 +106,8 @@ Re-create the visualization depicting the relationship between smoking status an
 
 ```{r new-visual}
 
-Whickham %>%
-  count(smoker, age_cat, outcome)
+# Whickham %>%
+  # count(smoker, age_cat, outcome)
 
 
 ```
