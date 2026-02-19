@@ -1,7 +1,7 @@
 ---
 title: "Lab 06 - Ugly charts and Simpson's paradox"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Anaelle Gackiere"
+date: "02-20-2026"
 output: github_document
 ---
 
@@ -13,22 +13,100 @@ library(dsbox)
 library(mosaicData) 
 ```
 
+```{r prep}
+
+data(Whickham)
+
+?Whickham
+library(performance)
+performance::compare_performance() # might not be behaving as intended.
+
+```
+
 ### Exercise 1
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+This is an observational study, because the data comes from a survey that asks for their smoking status, age, and then the survival status is measured 20 years after, but no manipulation of variables is present. As the data description describes, "Data on age, smoking, and mortality from a one-in-six survey of the electoral roll in Whickham [...] the survey was conducted in 1972-1974 to study heart disease and thyroid disease. A follow-up on those in the survey was conducted twenty years later."
 
 ### Exercise 2
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+How many observations are in this dataset? What does each observation represent?
+
+There are 1314 observations on women, each of which represents their age, smoking status at baseline, and survival status.
 
 ### Exercise 3
+How many variables are in this dataset? What type of variable is each? Display each variable using an appropriate visualization.
+
+There are three variables in this data set (age, smoker, outcome). The outcome variable is a factor with two levels: Alive and Dead. The smoker variable is a factor with two levels: No and Yes. The age variable is a continuous one, and it is classified as an integer. 
+
+```{r display-vars}
+# class check
+class(Whickham$age)
+class(Whickham$outcome)
+class(Whickham$smoker)
+
+# display age
+ggplot(Whickham, aes(age)) +
+  geom_histogram()
+
+# display smoker
+ggplot(Whickham, aes(smoker)) +
+  geom_bar()
+
+# display outcome
+ggplot(Whickham, aes(outcome)) +
+  geom_bar()
+
+
+
+
+```
 
 ...
 
-Add exercise headings as needed.
+### Exercise 4
+What would you expect the relationship between smoking status and health outcome to be?
+
+I would expect that smoking status and the health outcome have YEs as smoking status would be positively associated with Dead in the outcome. 
+
+### Exercise 5
+Create a visualization depicting the relationship between smoking status and health outcome. Briefly describe the relationship, and evaluate whether this meets your expectations. Additionally, calculate the relevant conditional probabilities to help your narrative. Here is some code to get you started:
+
+```{r visual}
+
+Whickham %>%
+  count(smoker, outcome)
+
+
+
+
+```
+...
+
+### Exercise 6
+```{r new-var}
+
+age_cat
+
+age <= 44 ~ "18-44"
+age > 44 & age <= 64 ~ "45-64"
+age > 64 ~ "65+"
+
+
+
+```
+
+
+### Exercise 7
+Re-create the visualization depicting the relationship between smoking status and health outcome, faceted by age_cat.
+
+```{r new-visual}
+
+Whickham %>%
+  count(smoker, age_cat, outcome)
+
+
+```
+
+
+
+
