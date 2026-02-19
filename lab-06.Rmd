@@ -43,15 +43,18 @@ class(Whickham$smoker)
 
 # display age
 ggplot(Whickham, aes(age)) +
-  geom_histogram()
+  geom_histogram() +
+  labs(y = "Proportion")
 
 # display smoker
 ggplot(Whickham, aes(smoker)) +
-  geom_bar()
+  geom_bar() +
+  labs(y = "Proportion")
 
 # display outcome
 ggplot(Whickham, aes(outcome)) +
-  geom_bar()
+  geom_bar() +
+  labs(y = "Proportion")
 
 
 
@@ -70,15 +73,17 @@ Create a visualization depicting the relationship between smoking status and hea
 
 ```{r visual}
 
-Whickham %>%
-  count(smoker, outcome)
 
 # visual
-ggplot(Whickham, aes(smoker,outcome)) +
-  geom_count() +
-  theme_dark()
+ggplot(Whickham, aes(x = smoker, fill = outcome)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion")
 
 # calculate probabilities
+Whickham %>%
+  count(smoker, outcome) %>%
+  group_by(smoker) %>%
+  mutate(prop = n / sum(n))
 
 
 ```
@@ -88,15 +93,14 @@ ggplot(Whickham, aes(smoker,outcome)) +
 ```{r new-var}
 
 # new age variable (categories)
-age_cat <- Whickham %>%
+Whickham <- Whickham %>%
   mutate(age_cat = case_when(
     age <= 44 ~ "18-44",
     age > 44 & age <= 64 ~ "45-64",
     age > 64 ~ "65+"
   ))
-
 # check it worked 
-head(age_cat)
+head(Whickham$age_cat)
 
 ```
 
@@ -106,9 +110,17 @@ Re-create the visualization depicting the relationship between smoking status an
 
 ```{r new-visual}
 
-# Whickham %>%
-  # count(smoker, age_cat, outcome)
+# visual 
+ggplot(Whickham, aes(x = smoker, fill = outcome)) +
+  geom_bar(position = "fill") +
+  facet_wrap(vars(age_cat)) +
+  labs(y = "Proportion")
 
+# contingency table
+Whickham %>%
+  count(age_cat, smoker, outcome) %>%
+  group_by(age_cat, smoker) %>%
+  mutate(prop = n / sum(n))
 
 ```
 

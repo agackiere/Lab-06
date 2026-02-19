@@ -68,7 +68,8 @@ class(Whickham$smoker)
 ``` r
 # display age
 ggplot(Whickham, aes(age)) +
-  geom_histogram()
+  geom_histogram() +
+  labs(y = "Proportion")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value `binwidth`.
@@ -78,7 +79,8 @@ ggplot(Whickham, aes(age)) +
 ``` r
 # display smoker
 ggplot(Whickham, aes(smoker)) +
-  geom_bar()
+  geom_bar() +
+  labs(y = "Proportion")
 ```
 
 ![](lab-06_files/figure-gfm/display-vars-2.png)<!-- -->
@@ -86,7 +88,8 @@ ggplot(Whickham, aes(smoker)) +
 ``` r
 # display outcome
 ggplot(Whickham, aes(outcome)) +
-  geom_bar()
+  geom_bar() +
+  labs(y = "Proportion")
 ```
 
 ![](lab-06_files/figure-gfm/display-vars-3.png)<!-- -->
@@ -110,28 +113,30 @@ relevant conditional probabilities to help your narrative. Here is some
 code to get you started:
 
 ``` r
-Whickham %>%
-  count(smoker, outcome)
-```
-
-    ##   smoker outcome   n
-    ## 1     No   Alive 502
-    ## 2     No    Dead 230
-    ## 3    Yes   Alive 443
-    ## 4    Yes    Dead 139
-
-``` r
 # visual
-ggplot(Whickham, aes(smoker,outcome)) +
-  geom_count() +
-  theme_dark()
+ggplot(Whickham, aes(x = smoker, fill = outcome)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion")
 ```
 
 ![](lab-06_files/figure-gfm/visual-1.png)<!-- -->
 
 ``` r
 # calculate probabilities
+Whickham %>%
+  count(smoker, outcome) %>%
+  group_by(smoker) %>%
+  mutate(prop = n / sum(n))
 ```
+
+    ## # A tibble: 4 × 4
+    ## # Groups:   smoker [2]
+    ##   smoker outcome     n  prop
+    ##   <fct>  <fct>   <int> <dbl>
+    ## 1 No     Alive     502 0.686
+    ## 2 No     Dead      230 0.314
+    ## 3 Yes    Alive     443 0.761
+    ## 4 Yes    Dead      139 0.239
 
 …
 
@@ -139,24 +144,17 @@ ggplot(Whickham, aes(smoker,outcome)) +
 
 ``` r
 # new age variable (categories)
-age_cat <- Whickham %>%
+Whickham <- Whickham %>%
   mutate(age_cat = case_when(
     age <= 44 ~ "18-44",
     age > 44 & age <= 64 ~ "45-64",
     age > 64 ~ "65+"
   ))
-
 # check it worked 
-head(age_cat)
+head(Whickham$age_cat)
 ```
 
-    ##   outcome smoker age age_cat
-    ## 1   Alive    Yes  23   18-44
-    ## 2   Alive    Yes  18   18-44
-    ## 3    Dead    Yes  71     65+
-    ## 4   Alive     No  67     65+
-    ## 5   Alive     No  64   45-64
-    ## 6   Alive    Yes  38   18-44
+    ## [1] "18-44" "18-44" "65+"   "65+"   "45-64" "18-44"
 
 ### Exercise 7
 
@@ -164,6 +162,36 @@ Re-create the visualization depicting the relationship between smoking
 status and health outcome, faceted by age_cat.
 
 ``` r
-# Whickham %>%
-  # count(smoker, age_cat, outcome)
+# visual 
+ggplot(Whickham, aes(x = smoker, fill = outcome)) +
+  geom_bar(position = "fill") +
+  facet_wrap(vars(age_cat)) +
+  labs(y = "Proportion")
 ```
+
+![](lab-06_files/figure-gfm/new-visual-1.png)<!-- -->
+
+``` r
+# contingency table
+Whickham %>%
+  count(age_cat, smoker, outcome) %>%
+  group_by(age_cat, smoker) %>%
+  mutate(prop = n / sum(n))
+```
+
+    ## # A tibble: 12 × 5
+    ## # Groups:   age_cat, smoker [6]
+    ##    age_cat smoker outcome     n   prop
+    ##    <chr>   <fct>  <fct>   <int>  <dbl>
+    ##  1 18-44   No     Alive     327 0.965 
+    ##  2 18-44   No     Dead       12 0.0354
+    ##  3 18-44   Yes    Alive     270 0.947 
+    ##  4 18-44   Yes    Dead       15 0.0526
+    ##  5 45-64   No     Alive     147 0.735 
+    ##  6 45-64   No     Dead       53 0.265 
+    ##  7 45-64   Yes    Alive     167 0.676 
+    ##  8 45-64   Yes    Dead       80 0.324 
+    ##  9 65+     No     Alive      28 0.145 
+    ## 10 65+     No     Dead      165 0.855 
+    ## 11 65+     Yes    Alive       6 0.12  
+    ## 12 65+     Yes    Dead       44 0.88
