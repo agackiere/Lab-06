@@ -33,8 +33,8 @@ later.”
 How many observations are in this dataset? What does each observation
 represent?
 
-There are 1314 observations on women, each of which represents their
-age, smoking status at baseline, and survival status.
+There are 1314 observations on women, each of which has their age,
+smoking status at baseline, and survival status.
 
 ### Exercise 3
 
@@ -68,8 +68,11 @@ class(Whickham$smoker)
 ``` r
 # display age
 ggplot(Whickham, aes(age)) +
-  geom_histogram() +
-  labs(y = "Proportion")
+  geom_histogram(fill = "plum") +
+  labs(title = "Age of Women in the Whickham Data Frame",
+       y = "Proportion",
+       x = "Age") +
+  theme_linedraw()
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value `binwidth`.
@@ -78,18 +81,26 @@ ggplot(Whickham, aes(age)) +
 
 ``` r
 # display smoker
-ggplot(Whickham, aes(smoker)) +
+ggplot(Whickham, aes(x = smoker, fill = smoker)) +
   geom_bar() +
-  labs(y = "Proportion")
+  labs(title = "Smoker Status of Women in the Whickham Data Frame",
+       y = "Proportion",
+       x = "Smoker") +
+  scale_fill_manual(values = c("Yes" = "plum", "No" = "plum4")) +
+  theme_linedraw()
 ```
 
 ![](lab-06_files/figure-gfm/display-vars-2.png)<!-- -->
 
 ``` r
 # display outcome
-ggplot(Whickham, aes(outcome)) +
+ggplot(Whickham, aes(x = outcome, fill = outcome)) +
   geom_bar() +
-  labs(y = "Proportion")
+  labs(y = "Proportion",
+       x = "Outcome",
+       title = "Outcomes of Women in the Whickham Data Frame") +
+  scale_fill_manual(values = c("Alive" = "plum", "Dead" = "plum4")) +
+  theme_linedraw()
 ```
 
 ![](lab-06_files/figure-gfm/display-vars-3.png)<!-- -->
@@ -101,28 +112,29 @@ ggplot(Whickham, aes(outcome)) +
 What would you expect the relationship between smoking status and health
 outcome to be?
 
-I would expect that smoking status and the health outcome have YEs as
-smoking status would be positively associated with Dead in the outcome.
+I would expect yes in the smoking status would be positively associated
+with Dead in the outcome.
 
 ### Exercise 5
 
-Create a visualization depicting the relationship between smoking status
-and health outcome. Briefly describe the relationship, and evaluate
-whether this meets your expectations. Additionally, calculate the
-relevant conditional probabilities to help your narrative. Here is some
-code to get you started:
+I did not expect to see that more women who did NOT smoke died, compared
+to women who smoked.
 
 ``` r
 # visual
 ggplot(Whickham, aes(x = smoker, fill = outcome)) +
   geom_bar(position = "fill") +
-  labs(y = "Proportion")
+  labs(y = "Proportion",
+       x = "Smoking Status",
+       title = "Smoking Status vs. Outcomes") +
+  scale_fill_manual(values = c("Alive" = "plum", "Dead" = "plum4")) +
+  theme_linedraw()
 ```
 
 ![](lab-06_files/figure-gfm/visual-1.png)<!-- -->
 
 ``` r
-# calculate probabilities
+# calculate proportions and make a table of it
 Whickham %>%
   count(smoker, outcome) %>%
   group_by(smoker) %>%
@@ -158,15 +170,21 @@ head(Whickham$age_cat)
 
 ### Exercise 7
 
-Re-create the visualization depicting the relationship between smoking
-status and health outcome, faceted by age_cat.
+Now that we take age into consideration, the outcome is what I
+predicted: out of women who died, there were more of them who smoked
+than those who did not. As age increases, so does the proportion of
+people who die, and the proportion of women who smoke and died is
+greater than the proportion of women who did not smoke and died for all
+age groups.
 
 ``` r
 # visual 
 ggplot(Whickham, aes(x = smoker, fill = outcome)) +
   geom_bar(position = "fill") +
   facet_wrap(vars(age_cat)) +
-  labs(y = "Proportion")
+  labs(y = "Proportion") +
+  scale_fill_manual(values = c("Alive" = "plum", "Dead" = "plum4")) +
+  theme_linedraw()
 ```
 
 ![](lab-06_files/figure-gfm/new-visual-1.png)<!-- -->
