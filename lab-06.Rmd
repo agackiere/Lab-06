@@ -123,6 +123,8 @@ ggplot(myDF, aes(x = country, y = tons_m, fill = source)) +
 
 ```
 
+## Stretch Yourself with Smokers in Whickham
+
 ```{r prep}
 
 data(Whickham)
