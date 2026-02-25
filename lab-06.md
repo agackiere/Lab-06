@@ -90,13 +90,42 @@ part time to other (so it really stands out).
 
 ### Fisheries
 
-``` r
-library(countrycode)
+Improvement ideas:
 
+- Show total production by country (separating capture and aquaculture)
+
+  - either in amount of percentage
+
+- Show by continent and not country perhaps since there are so many
+  countries
+
+  - Or show by country by flip axis
+
+  - Use top 20 countries so it’s more readable (not all 215)
+
+- It should be a bar chart since it’s not continuous data
+
+``` r
+library(scales)
+```
+
+    ## 
+    ## Attaching package: 'scales'
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     discard
+
+    ## The following object is masked from 'package:readr':
+    ## 
+    ##     col_factor
+
+``` r
 fisheries <- read_csv("data/fisheries.csv")
 ```
 
     ## Rows: 216 Columns: 4
+
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr (1): country
@@ -105,9 +134,56 @@ fisheries <- read_csv("data/fisheries.csv")
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-Improvement ideas:
+``` r
+names(fisheries)
+```
 
-- Improvement 1
+    ## [1] "country"     "capture"     "aquaculture" "total"
+
+``` r
+n_distinct(fisheries$country) # many countries so cut down to 20 with most production
+```
+
+    ## [1] 215
+
+``` r
+library(tidyverse)
+library(scales)
+
+fisheries <- read_csv("data/fisheries.csv", show_col_types = FALSE)
+
+# using slice max to keep rows with the largest values 
+myDF <- fisheries %>%
+  slice_max(total, n = 20, with_ties = FALSE) %>%
+  pivot_longer( # turning into long format so easier to graph
+    cols = c(capture, aquaculture),
+    names_to = "source",
+    values_to = "tons"
+  ) %>%
+  mutate(
+    source = recode(source,
+      capture = "Capture (wild)",
+      aquaculture = "Aquaculture (farmed)"
+    ),
+    country = fct_reorder(country, tons, .fun = sum), # i'm reordering by total production
+    tons_m = tons / 1e6 # changing to millions so it's readable
+  )
+
+ggplot(myDF, aes(x = country, y = tons_m, fill = source)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = label_number(accuracy = 0.1, suffix = "M")) +
+  labs(
+    x = NULL,
+    y = "Production (million tons, 2016)",
+    title = "Top 20 fish-producing countries (capture vs aquaculture)",
+    fill = NULL
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+![](lab-06_files/figure-gfm/fisheries-1.png)<!-- -->
 
 ``` r
 data(Whickham)
