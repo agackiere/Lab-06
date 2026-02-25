@@ -11,7 +11,68 @@ output: github_document
 library(tidyverse) 
 library(dsbox)
 library(mosaicData) 
+library(dplyr)
+library(ggplot2)
 ```
+
+### Ugly Charts
+
+### Instructional staff employment trends
+
+```{r set-up}
+
+staff <- read_csv("data/instructional-staff.csv")
+
+# pivot to long format 
+staff_long <- staff %>%
+  pivot_longer(cols = -faculty_type, names_to = "year") %>%
+  mutate(value = as.numeric(value))
+
+# take a look
+staff_long %>% head()
+
+# plot
+staff_long %>%
+  ggplot(aes(x = year, y = value, color = faculty_type)) +
+  geom_line()
+
+```
+
+This wasn't a good plot. Let's change that:
+
+```{r good-plot}
+
+staff_long %>%
+  ggplot(aes(
+    x = year,
+    y = value,
+    group = faculty_type,
+    color = faculty_type
+  )) + 
+  geom_line() +
+  labs(title = "Instructional Staff Employment Trends",
+       y = "Proportion of Faculty Type",
+       x = "year") +
+  scale_x_discrete(guide = guide_axis(angle = 45))
+
+```
+
+If the objective of this plot was to show that the proportion of part-time faculty have gone up over time compared to other instructional staff types I would maybe make the year continuous, make the part-time faculty employment bold, and add a subtitle focused on this trend. I might also group all the other ones together so that viewers can compare part time to other (so it really stands out).
+
+### Fisheries
+
+```{r fisheries}
+
+library(countrycode)
+
+fisheries <- read_csv("data/fisheries.csv")
+
+
+```
+
+Improvement ideas:
+
+-   Improvement 1
 
 ```{r prep}
 

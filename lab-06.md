@@ -9,7 +9,105 @@ Anaelle Gackiere
 library(tidyverse) 
 library(dsbox)
 library(mosaicData) 
+library(dplyr)
+library(ggplot2)
 ```
+
+### Ugly Charts
+
+### Instructional staff employment trends
+
+``` r
+staff <- read_csv("data/instructional-staff.csv")
+```
+
+    ## Rows: 5 Columns: 12
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr  (1): faculty_type
+    ## dbl (11): 1975, 1989, 1993, 1995, 1999, 2001, 2003, 2005, 2007, 2009, 2011
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# pivot to long format 
+staff_long <- staff %>%
+  pivot_longer(cols = -faculty_type, names_to = "year") %>%
+  mutate(value = as.numeric(value))
+
+# take a look
+staff_long %>% head()
+```
+
+    ## # A tibble: 6 × 3
+    ##   faculty_type              year  value
+    ##   <chr>                     <chr> <dbl>
+    ## 1 Full-Time Tenured Faculty 1975   29  
+    ## 2 Full-Time Tenured Faculty 1989   27.6
+    ## 3 Full-Time Tenured Faculty 1993   25  
+    ## 4 Full-Time Tenured Faculty 1995   24.8
+    ## 5 Full-Time Tenured Faculty 1999   21.8
+    ## 6 Full-Time Tenured Faculty 2001   20.3
+
+``` r
+# plot
+staff_long %>%
+  ggplot(aes(x = year, y = value, color = faculty_type)) +
+  geom_line()
+```
+
+    ## `geom_line()`: Each group consists of only one observation.
+    ## ℹ Do you need to adjust the group aesthetic?
+
+![](lab-06_files/figure-gfm/set-up-1.png)<!-- -->
+
+This wasn’t a good plot. Let’s change that:
+
+``` r
+staff_long %>%
+  ggplot(aes(
+    x = year,
+    y = value,
+    group = faculty_type,
+    color = faculty_type
+  )) + 
+  geom_line() +
+  labs(title = "Instructional Staff Employment Trends",
+       y = "Proportion of Faculty Type",
+       x = "year") +
+  scale_x_discrete(guide = guide_axis(angle = 45))
+```
+
+![](lab-06_files/figure-gfm/good-plot-1.png)<!-- -->
+
+If the objective of this plot was to show that the proportion of
+part-time faculty have gone up over time compared to other instructional
+staff types I would maybe make the year continuous, make the part-time
+faculty employment bold, and add a subtitle focused on this trend. I
+might also group all the other ones together so that viewers can compare
+part time to other (so it really stands out).
+
+### Fisheries
+
+``` r
+library(countrycode)
+
+fisheries <- read_csv("data/fisheries.csv")
+```
+
+    ## Rows: 216 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (1): country
+    ## dbl (3): capture, aquaculture, total
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+Improvement ideas:
+
+- Improvement 1
 
 ``` r
 data(Whickham)
